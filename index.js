@@ -1,9 +1,9 @@
 require('dotenv').config();
 
-const express = require('express');
-const mongoose = require('mongoose');
+const express               = require('express');
+const mongoose              = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const apiRoutes = require('./routes/api');
+const apiRoutes             = require('./routes/api');
 
 const app = express();
 const PORT = process.env.PORT;
@@ -25,7 +25,18 @@ let mongoServer;
   }
 })();
 
+
 app.use('/api/v1/', apiRoutes);
+
+app.use((req, res, next) => {
+  res.status(404)
+     .json({
+    error: {
+      message: 'File not found',
+      status: 404
+    }
+  });
+});
 
 app.listen(PORT, () => console.log(`Listening at http://localhost:${PORT}`));
 
