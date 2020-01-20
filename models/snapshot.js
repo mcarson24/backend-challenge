@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const SnapshotSchema = new mongoose.Schema({
-  station: String,
+  stations: String,
   weather: String,
   createdAt: {
     type: Date,

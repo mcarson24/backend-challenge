@@ -12,42 +12,28 @@ describe('Snapshot', () => {
     });
   });
   describe('getting all stations', () => {
-    it('should return a 200', done => {
+    it('should return a 404 when no snapshots found', done => {
       request(app)
         .get('/api/v1/stations')
         .set('Accept', 'application/json')
-        .expect(200, done);
+        .expect(404, done);
     });
-    it('should return all the snapshot data', done => {
+    it('should return the most recent snapshot data when no date is specified', done => {
       Snapshot.create({
-        station: JSON.stringify([
-          {
-            geometry: { coordinates: [-75.16042, 39.93431], type: "Point" },
-            properties: {
-              addressStreet: "1201 S. 10th Street",
-              addressCity: "Philadelphia",
-              addressState: "PA",
-              addressZipCode: "19147",
-            },
-            type: "Feature"
-          }
-        ]),
-        weather: JSON.stringify({
-          coord: { lon: -75.16, lat: 39.95 },
-          weather: [
-            { id: 800, main: "Clear", description: "clear sky", icon: "01d" }
-          ],
-          timezone: -18000,
-          id: 4560349,
-          name: "Philadelphia",
-          cod: 200
-        })
+        stations: JSON.stringify([{}]),
+        weather: JSON.stringify({}),
+        createdAt: '2020-01-01 00:00:00+00:00'
+      });
+      Snapshot.create({
+        stations: JSON.stringify([{}]),
+        weather: JSON.stringify({}),
+        createdAt: '2020-01-20 12:05:00+00:00'
       });
       request(app)
         .get('/api/v1/stations')
         .expect('Content-Type', /json/)
         .end((err, res) => {
-          expect(res.body.length).to.equal(1);
+          expect(res.body.at).to.equal("2020-01-20:T12:05:00");
           done();
         });
     });
@@ -77,7 +63,7 @@ describe('Snapshot', () => {
       });
       dates.map(date => {
         Snapshot.create({
-          station: JSON.stringify(stationData),
+          stations: JSON.stringify(stationData),
           weather: JSON.stringify({
             coord: { lon: -75.16, lat: 39.95 },
             weather: [
