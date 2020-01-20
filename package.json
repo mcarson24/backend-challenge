@@ -4,7 +4,7 @@
   "description": "P'unk Avenue backend node.js challenge",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha test --recursive --exit"
   },
   "repository": {
     "type": "git",
@@ -15,5 +15,18 @@
   "bugs": {
     "url": "https://github.com/punkave/backend-challenge/issues"
   },
-  "homepage": "https://github.com/punkave/backend-challenge#readme"
+  "homepage": "https://github.com/punkave/backend-challenge#readme",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "moment": "^2.24.0",
+    "mongodb": "^3.5.2",
+    "mongodb-memory-server": "^6.2.3",
+    "mongoose": "^5.8.9"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^7.0.0",
+    "supertest": "^4.0.2"
+  }
 }
