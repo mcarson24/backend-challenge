@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const moment   = require('moment');
 
 const SnapshotSchema = new mongoose.Schema({
   stations: String,
@@ -16,4 +17,10 @@ SnapshotSchema.pre('save', next => {
   next();
 })
 
-module.exports = mongoose.model('snapshot', SnapshotSchema);
+const Snapshot = mongoose.model('snapshot', SnapshotSchema);
+
+Snapshot.findOneAfter = async date => {
+  return await Snapshot.findOne({ createdAt: { $gte: date } });
+}
+
+module.exports = Snapshot;

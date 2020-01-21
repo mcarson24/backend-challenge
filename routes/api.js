@@ -1,15 +1,15 @@
-const express   = require('express');
-const router    = express();
-const Snapshot  = require('../models/snapshot');
-const moment    = require('moment');
+const express       = require('express');
+const router        = express();
+const Snapshot      = require('../models/snapshot');
+const moment        = require('moment');
 
 router.get("/stations", async (req, res) => {
   let data;
 
   if (req.query.at) {
-    const date = new Date(`${req.query.at}+00:00`);
-    const dateQuery = date.toString().trim();
-    const snapshot = await Snapshot.findOne({ createdAt: { $gte: dateQuery } });
+    const date = new Date(`${req.query.at}+00:00`).toString().trim();
+    const snapshot = await Snapshot.findOneAfter(date);
+
     if (!snapshot) {
       res.status(404)
       data = {
@@ -21,8 +21,8 @@ router.get("/stations", async (req, res) => {
     } else {
       data = {
         at: moment(snapshot.createdAt)
-          .utc()
-          .format("YYYY-MM-DD:THH:mm:ss"),
+            .utc()
+            .format("YYYY-MM-DD:THH:mm:ss"),
         stations: JSON.parse(snapshot.stations),
         weather: JSON.parse(snapshot.weather)
       };
@@ -40,8 +40,8 @@ router.get("/stations", async (req, res) => {
     } else {
       data = {
         at: moment(snapshot.createdAt)
-          .utc()
-          .format("YYYY-MM-DD:THH:mm:ss"),
+            .utc()
+          . format("YYYY-MM-DD:THH:mm:ss"),
         stations: JSON.parse(snapshot.stations),
         weather: JSON.parse(snapshot.weather)
       };

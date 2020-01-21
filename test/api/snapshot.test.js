@@ -12,6 +12,7 @@ describe('Snapshot', () => {
     });
   });
   describe('getting all stations', () => {
+    console.log(Snapshot);
     it('should return a 404 when no snapshots found', done => {
       request(app)
         .get('/api/v1/stations')
