@@ -51,4 +51,21 @@ router.get("/stations", async (req, res) => {
      .end();
 });
 
+
+router.get("/stations/:id", async (req, res) => {
+  const date = new Date(`${req.query.at}+00:00`);
+  const dateQuery = date.toString().trim();
+  const snapshot = await Snapshot.findOne({ createdAt: { $lte: dateQuery } });
+  const stations = JSON.parse(snapshot.stations);
+  const desiredStationData = stations.filter(station => {
+    return station.properties.kioskId == req.params.id
+  });
+  const data = {
+    at: snapshot.createdAt,
+    station: desiredStationData[0],
+    weather: JSON.parse(snapshot.weather),
+  };
+  res.json(data);
+});
+
 module.exports = router;

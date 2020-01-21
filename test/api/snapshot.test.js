@@ -2,7 +2,7 @@ process.env.NODE_ENV = 'test';
 
 const { expect, should }  = require('chai')
 const request             = require('supertest');
-const app                 = require('../../')
+const app                 = require('../../index')
 const Snapshot            = require('../../models/snapshot');
 
 describe('Snapshot', () => {
@@ -71,6 +71,32 @@ describe('Snapshot', () => {
         .get("/api/v1/stations?at=2020-01-20T11:00:00")
         .expect("Content-Type", /json/)
         .expect(404, done)
-    })
+    });
+    it('should return data for a single station', done => {
+      Snapshot.create({
+        stations: JSON.stringify([
+          { 
+            properties: {
+              kioskId: 3098 
+            }
+          }, 
+          { 
+            properties: {
+              kioskId: 3093 
+            }
+          }
+        ]),
+        weather: JSON.stringify({}),
+        createdAt: Date.parse("2020-01-20 00:00:00+00:00")
+      });
+      request(app)
+        .get('/api/v1/stations/3098?at=2020-01-20T10:30:00')
+        .expect('Content-Type', /json/)
+        .expect(200)
+        .end((err, res) => {
+          expect(res.body.station).to.deep.equal({ "properties": { "kioskId": 3098 }});
+          done();
+        });
+    });
   });
 });
