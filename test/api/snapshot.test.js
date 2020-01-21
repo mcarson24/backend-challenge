@@ -98,5 +98,51 @@ describe('Snapshot', () => {
           done();
         });
     });
+    it('should return a range of snapshots for a station over a specified period of time', done => {
+      Snapshot.create({
+        createdAt: Date.parse("2020-01-10 01:00:00+00:00"),
+        stations: JSON.stringify([
+          { properties: { kioskId: 3098 } },
+          { properties: { kioskId: 3093 } }
+        ]),
+        weather: "{}"
+      });
+      Snapshot.create({
+        createdAt: Date.parse("2020-01-10 02:00:00+00:00"),
+        stations: JSON.stringify([
+          { properties: { kioskId: 3098 } },
+          { properties: { kioskId: 3093 } }
+        ]),
+        weather: "{}"
+      });
+      Snapshot.create({
+        createdAt: Date.parse("2020-01-10 03:00:00+00:00"),
+        stations: JSON.stringify([
+          { properties: { kioskId: 3098 } },
+          { properties: { kioskId: 3093 } }
+        ]),
+        weather: "{}"
+      });
+      Snapshot.create({
+        createdAt: Date.parse("2020-01-18 02:00:00+00:00"),
+        stations: JSON.stringify([
+          { properties: { kioskId: 3098 } },
+          { properties: { kioskId: 3093 } }
+        ]),
+        weather: "{}"
+      });
+      request(app)
+        .get(
+          "/api/v1/stations/3098?from=2020-01-10T00:00:00&to=2020-01-15T01:00:00"
+        )
+        .expect(200)
+        .end((err, res) => {
+          expect(res.body.length).to.equal(3);
+          res.body.map(snapshot => {
+            expect(snapshot.station.properties.kioskId).to.equal(3098)
+          });
+          done();
+        });
+    })
   });
 });

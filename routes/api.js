@@ -53,19 +53,43 @@ router.get("/stations", async (req, res) => {
 
 
 router.get("/stations/:id", async (req, res) => {
-  const date = new Date(`${req.query.at}+00:00`);
-  const dateQuery = date.toString().trim();
-  const snapshot = await Snapshot.findOne({ createdAt: { $lte: dateQuery } });
-  const stations = JSON.parse(snapshot.stations);
-  const desiredStationData = stations.filter(station => {
-    return station.properties.kioskId == req.params.id
-  });
-  const data = {
-    at: snapshot.createdAt,
-    station: desiredStationData[0],
-    weather: JSON.parse(snapshot.weather),
-  };
-  res.json(data);
+  if (!req.query.from && !req.query.to) {
+    const date = new Date(`${req.query.at}+00:00`);
+    const dateQuery = date.toString().trim();
+    const snapshot = await Snapshot.findOne({ createdAt: { $lte: dateQuery } });
+    const stations = JSON.parse(snapshot.stations);
+    const desiredStationData = stations.filter(station => {
+      return station.properties.kioskId == req.params.id
+    });
+    res.json({
+      at: snapshot.createdAt,
+      station: desiredStationData[0],
+      weather: JSON.parse(snapshot.weather),
+    });
+  } else {
+    const to = new Date(`${req.query.to}+00:00`).toString().trim();
+    const from = new Date(`${req.query.from}+00:00`).toString().trim();
+    let snapshots = await Snapshot.find({ createdAt: { $lte: to, $gte: from } });
+    snapshots = snapshots.map(snapshot => {
+      snapshot.stations = JSON.stringify(
+        JSON.parse(snapshot.stations).filter(station => {
+          if (station.properties.kioskId == req.params.id) {
+            return station;
+          };
+        })
+      );
+      return snapshot;
+    });
+    let data  = [];
+    snapshots.forEach(snapshot => {
+      data.push({
+        at: snapshot.createdAt,
+        station: JSON.parse(snapshot.stations)[0],
+        weather: JSON.parse(snapshot.weather)
+      });
+    })
+    res.json(data);
+  }
 });
 
 module.exports = router;
