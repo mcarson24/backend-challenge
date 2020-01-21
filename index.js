@@ -36,6 +36,17 @@ app.use((req, res, next) => {
       status: 404
     }
   });
+  next();
+});
+
+app.use((err, req, res, next) => {
+  res.status(err.status)
+     .json({
+       error: {
+         message: err.message,
+         status: err.status
+       }
+     });
 });
 
 app.listen(PORT, () => console.log(`Listening at http://localhost:${PORT}`));

@@ -3,7 +3,7 @@ process.env.NODE_ENV = 'test';
 const { expect, should }  = require('chai')
 const request             = require('supertest');
 const app                 = require('../../index')
-const Snapshot            = require('../../models/snapshot');
+const Snapshot            = require('../../app/models/snapshot');
 
 describe('Snapshot', () => {
   afterEach(done => {
@@ -143,6 +143,6 @@ describe('Snapshot', () => {
           });
           done();
         });
-    })
+    });
   });
 });
