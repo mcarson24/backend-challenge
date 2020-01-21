@@ -83,7 +83,9 @@ router.get("/stations/:id", async (req, res) => {
     let data  = [];
     snapshots.forEach(snapshot => {
       data.push({
-        at: snapshot.createdAt,
+        at: moment(snapshot.createdAt)
+          .utc()
+          .format("YYYY-MM-DD:THH:mm:ss"),
         station: JSON.parse(snapshot.stations)[0],
         weather: JSON.parse(snapshot.weather)
       });
