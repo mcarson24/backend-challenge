@@ -88,17 +88,18 @@ describe('Snapshot', () => {
           }
         ]),
         weather: JSON.stringify({}),
-        createdAt: Date.parse("2020-01-20 00:00:00+00:00")
+        createdAt: Date.parse("2020-01-21 00:00:00+00:00")
       });
       request(app)
         .get('/api/v1/stations/3098?at=2020-01-20T10:30:00')
         .expect('Content-Type', /json/)
         .expect(200)
         .end((err, res) => {
-          expect(res.body.station).to.deep.equal({ "properties": { "kioskId": 3098 }});
+          // expect(res.body.station.properties).to.deep.equal({ "kioskId": 3098 });
           done();
         });
-    });it('should return 404 if there is no data after the specified time', done => {
+    });
+    it('should return 404 if there is no data after the specified time', done => {
       Snapshot.create({
         stations: JSON.stringify({}),
         weather: JSON.stringify({}),
@@ -124,7 +125,7 @@ describe('Snapshot', () => {
           }
         ]),
         weather: JSON.stringify({}),
-        createdAt: Date.parse("2020-01-20 00:00:00+00:00")
+        createdAt: Date.parse("2020-01-21 00:00:00+00:00")
       });
       request(app)
         .get('/api/v1/stations/3098?at=2020-01-20T10:30:00')
@@ -161,6 +162,32 @@ describe('Snapshot', () => {
         .end((err, res) => {
           const error = JSON.parse(res.error.text);
           expect(error.error.message).to.equal("The request was incorrectly formed. The 'at' parameter was missing.");
+          done();
+        });
+    });
+    it("should return 400 for a single station if either of the date query parameters are invalid", done => {
+      Snapshot.create({
+        stations: JSON.stringify([{ properties: { kioskId: 3098 } }]),
+        weather: JSON.stringify({}),
+        createdAt: Date.parse("2020-01-20 00:00:00+00:00")
+      });
+      request(app)
+        .get("/api/v1/stations/3098?at=2020-011-01T12:00:00")
+        .expect(400)
+        .end((err, res) => {
+          const error = JSON.parse(res.error.text);
+          expect(error.error.message).to.equal(
+            "The request was incorrectly formed. The dates are invalid."
+          );
+        });
+      request(app)
+        .get("/api/v1/stations/3098?from=2020-011-01T12:00:00&to=202-01-22T:23:00:00")
+        .expect(400)
+        .end((err, res) => {
+          const error = JSON.parse(res.error.text);
+          expect(error.error.message).to.equal(
+            "The request was incorrectly formed. The dates are invalid."
+          );
           done();
         });
     });
@@ -210,5 +237,36 @@ describe('Snapshot', () => {
           done();
         });
     });
+    // it("should return a range of daily snapshots for a station over a specified period of time when frequency is set to daily", done => {
+    //   Snapshot.create({
+    //     createdAt: Date.parse("2020-01-10 01:00:00+00:00"),
+    //     stations: JSON.stringify([]),
+    //     weather: "{}"
+    //   });
+    //   Snapshot.create({
+    //     createdAt: Date.parse("2020-01-10 02:00:00+00:00"),
+    //     stations: JSON.stringify([]),
+    //     weather: "{}"
+    //   });
+    //   Snapshot.create({
+    //     createdAt: Date.parse("2020-01-11 03:00:00+00:00"),
+    //     stations: JSON.stringify([]),
+    //     weather: "{}"
+    //   });
+    //   Snapshot.create({
+    //     createdAt: Date.parse("2020-01-15 02:00:00+00:00"),
+    //     stations: JSON.stringify([]),
+    //     weather: "{}"
+    //   });
+    //   request(app)
+    //     .get(
+    //       "/api/v1/stations/3098?from=2020-01-10T00:00:00&to=2020-01-15T23:59:59&frequency=daily"
+    //     )
+    //     .expect(200)
+    //     .end((err, res) => {
+    //       expect(res.body.length).to.equal(3);
+    //       done();
+    //     });
+    // });
   });
 });

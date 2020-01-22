@@ -6,10 +6,13 @@ module.exports = class Time {
   }
 
   string() {
-    return this.time.toString().trim();
+    return moment(this.time)
+      .utc()
+      .toString()
+      .trim();
   }
 
-  get formatted() {
+  formatted() {
     return moment(this.time)
       .utc()
       .format('YYYY-MM-DD:THH:mm:ss');
