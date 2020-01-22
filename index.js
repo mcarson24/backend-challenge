@@ -25,7 +25,6 @@ let mongoServer;
   }
 })();
 
-
 app.use('/api/v1/', apiRoutes);
 
 app.use((req, res, next) => {

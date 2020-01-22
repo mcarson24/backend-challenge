@@ -1,6 +1,5 @@
 const Snapshot = require('../app/models/snapshot');
 const SnapshotNotFoundError = require("../SnapshotNotFoundError");
-const MissingParametersError = require('../MissingParametersError');
 const moment = require('moment');
 const Time = require('../app/Time');
 
