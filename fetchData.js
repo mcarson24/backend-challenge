@@ -1,7 +1,7 @@
-const snapshot  = require('./app/models/snapshot');
+const Snapshot  = require('./app/models/snapshot');
 const fetch     = require('node-fetch');
 
-setInterval(async () => {
+const fetchData = async () => {
   let data = {
     createdAt: new Date()
   };
@@ -19,4 +19,6 @@ setInterval(async () => {
     });
   await Snapshot.create(data);
   console.log(`Saved a snapshot at ${new Date()}`);
-}, 1000 * 60 * 60);
+}
+
+module.exports = fetchData;

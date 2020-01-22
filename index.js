@@ -4,6 +4,7 @@ const express               = require('express');
 const mongoose              = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const apiRoutes             = require('./routes/api');
+const fetchData             = require('./fetchData');
 
 const app = express();
 const PORT = process.env.PORT;
@@ -24,6 +25,11 @@ let mongoServer;
     mongoServer = mongoose.connection;
   }
 })();
+
+setInterval(() => {
+  fetchData();
+}, 1000 * 60 * 60);
+
 
 app.use('/api/v1/', apiRoutes);
 
