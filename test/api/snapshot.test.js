@@ -12,7 +12,6 @@ describe('Snapshot', () => {
     });
   });
   describe('getting all stations', () => {
-    console.log(Snapshot);
     it('should return a 404 when no snapshots found', done => {
       request(app)
         .get('/api/v1/stations')
@@ -237,36 +236,41 @@ describe('Snapshot', () => {
           done();
         });
     });
-    // it("should return a range of daily snapshots for a station over a specified period of time when frequency is set to daily", done => {
-    //   Snapshot.create({
-    //     createdAt: Date.parse("2020-01-10 01:00:00+00:00"),
-    //     stations: JSON.stringify([]),
-    //     weather: "{}"
-    //   });
-    //   Snapshot.create({
-    //     createdAt: Date.parse("2020-01-10 02:00:00+00:00"),
-    //     stations: JSON.stringify([]),
-    //     weather: "{}"
-    //   });
-    //   Snapshot.create({
-    //     createdAt: Date.parse("2020-01-11 03:00:00+00:00"),
-    //     stations: JSON.stringify([]),
-    //     weather: "{}"
-    //   });
-    //   Snapshot.create({
-    //     createdAt: Date.parse("2020-01-15 02:00:00+00:00"),
-    //     stations: JSON.stringify([]),
-    //     weather: "{}"
-    //   });
-    //   request(app)
-    //     .get(
-    //       "/api/v1/stations/3098?from=2020-01-10T00:00:00&to=2020-01-15T23:59:59&frequency=daily"
-    //     )
-    //     .expect(200)
-    //     .end((err, res) => {
-    //       expect(res.body.length).to.equal(3);
-    //       done();
-    //     });
-    // });
+    it("should return a range of daily snapshots for a station over a specified period of time when frequency is set to daily", done => {
+      Snapshot.create({
+        createdAt: Date.parse("2020-01-10 17:00:00+00:00"),
+        stations: JSON.stringify([{ properties: { kioskId: 3098 } }]),
+        weather: "{}"
+      });
+      Snapshot.create({
+        createdAt: Date.parse("2020-01-10 17:00:00+00:00"),
+        stations: JSON.stringify([{ properties: { kioskId: 3098 } }]),
+        weather: "{}"
+      });
+      Snapshot.create({
+        createdAt: Date.parse("2020-01-11 19:00:00+00:00"),
+        stations: JSON.stringify([{ properties: { kioskId: 3098 } }]),
+        weather: "{}"
+      });
+      Snapshot.create({
+        createdAt: Date.parse("2020-01-11 21:00:00+00:00"),
+        stations: JSON.stringify([{ properties: { kioskId: 3098 } }]),
+        weather: "{}"
+      });
+      Snapshot.create({
+        createdAt: Date.parse("2020-01-15 17:00:00+00:00"),
+        stations: JSON.stringify([{ properties: { kioskId: 3098 } }]),
+        weather: "{}"
+      });
+      request(app)
+        .get(
+          "/api/v1/stations/3098?from=2020-01-10T00:00:00&to=2020-01-15T23:59:59&frequency=daily"
+        )
+        .expect(200)
+        .end((err, res) => {
+          expect(res.body.length).to.equal(3);
+          done();
+        });
+    });
   });
 });

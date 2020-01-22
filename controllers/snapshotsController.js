@@ -77,5 +77,18 @@ module.exports.getStationSnapshot = async (req, res, next) => {
       weather: JSON.parse(snapshot.weather)
     });
   });
+  if (req.query.frequency === 'daily') {
+    let dates = [];
+    data = data.filter(snapshot => {
+      const date = snapshot.at.substring(0, 10);
+      const time = snapshot.at.substring(12);
+      // 17:00:00 UTC is noon Eastern Time (Except for a three week period in March and a week in October-November)
+      // But I can live with that for this project.
+      if (!dates.includes(date) &&time >= "17:00:00") {
+        dates.push(date);
+        return snapshot;
+      }
+    });
+  }
   res.json(data);
 }
