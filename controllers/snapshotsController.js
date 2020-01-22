@@ -48,7 +48,7 @@ module.exports.getStationSnapshot = async (req, res, next) => {
     });
   } 
 
-  // Return snapshots in a range range of times.
+  // Return snapshots in a range of times.
   const to = new Time(`${req.query.to}+00:00`).string();
   const from = new Time(`${req.query.from}+00:00`).string();
   let snapshots = await Snapshot.between(from, to);
