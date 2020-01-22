@@ -5,7 +5,7 @@ module.exports = class Time {
     this.time = time.length ? new Date(time) : new Date;
   }
 
-  get toString() {
+  string() {
     return this.time.toString().trim();
   }
 

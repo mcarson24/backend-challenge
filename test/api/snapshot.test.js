@@ -37,7 +37,7 @@ describe('Snapshot', () => {
           done();
         });
     });
-    it('should return the closest snapshot data for a particular date and time', done => {
+    it('should return the closest snapshot data after a particular date and time', done => {
       const dates = [
         "2020-01-01 00:00:00+00:00",
         "2020-01-20 02:00:00+00:00",
@@ -95,6 +95,71 @@ describe('Snapshot', () => {
         .expect(200)
         .end((err, res) => {
           expect(res.body.station).to.deep.equal({ "properties": { "kioskId": 3098 }});
+          done();
+        });
+    });it('should return 404 if there is no data after the specified time', done => {
+      Snapshot.create({
+        stations: JSON.stringify({}),
+        weather: JSON.stringify({}),
+        createdAt: Date.parse("2005-01-20 00:00:00+00:00")
+      });
+      request(app)
+        .get("/api/v1/stations?at=2020-01-20T11:00:00")
+        .expect("Content-Type", /json/)
+        .expect(404, done)
+    });
+    it('should return data for a single station', done => {
+      Snapshot.create({
+        stations: JSON.stringify([
+          { 
+            properties: {
+              kioskId: 3098 
+            }
+          }, 
+          { 
+            properties: {
+              kioskId: 3093 
+            }
+          }
+        ]),
+        weather: JSON.stringify({}),
+        createdAt: Date.parse("2020-01-20 00:00:00+00:00")
+      });
+      request(app)
+        .get('/api/v1/stations/3098?at=2020-01-20T10:30:00')
+        .expect('Content-Type', /json/)
+        .expect(200)
+        .end((err, res) => {
+          expect(res.body.station).to.deep.equal({ "properties": { "kioskId": 3098 }});
+          done();
+        });
+    });
+    it("should return 404 if there is no data after the specified time", done => {
+      Snapshot.create({
+        stations: JSON.stringify({}),
+        weather: JSON.stringify({}),
+        createdAt: Date.parse("2005-01-20 00:00:00+00:00")
+      });
+      request(app)
+        .get("/api/v1/stations?at=2020-01-20T11:00:00")
+        .expect("Content-Type", /json/)
+        .expect(404, done);
+    });
+    it("should return 400 for a single station if no at query parameter is specified", done => {
+      Snapshot.create({
+        stations: JSON.stringify([
+          { properties: { kioskId: 3098 } }
+        ]),
+        weather: JSON.stringify({}),
+        createdAt: Date.parse("2020-01-20 00:00:00+00:00")
+      });
+      request(app)
+        .get("/api/v1/stations/3098")
+        .expect("Content-Type", /json/)
+        .expect(400)
+        .end((err, res) => {
+          const error = JSON.parse(res.error.text);
+          expect(error.error.message).to.equal("The request was incorrectly formed. The 'at' parameter was missing.");
           done();
         });
     });
