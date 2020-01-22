@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 const express       = require('express');
 const router        = express();
 const Snapshot      = require('../models/snapshot');
@@ -50,5 +51,13 @@ router.get("/stations", async (req, res) => {
   res.json(data)
      .end();
 });
+=======
+const express   = require('express');
+const router    = express();
+const snapshots_controller = require('../controllers/snapshotsController');
+
+router.get('/stations', snapshots_controller.index);
+router.get('/stations/:id', snapshots_controller.getStationSnapshot)
+>>>>>>> messing-with-mongoose
 
 module.exports = router;
