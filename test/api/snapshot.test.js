@@ -1,6 +1,6 @@
 process.env.NODE_ENV = 'test';
 
-const { expect, should }  = require('chai')
+const { expect }          = require('chai')
 const request             = require('supertest');
 const app                 = require('../../index')
 const Snapshot            = require('../../app/models/snapshot');

@@ -2,12 +2,13 @@ require('dotenv').config();
 
 const express               = require('express');
 const mongoose              = require('mongoose');
-const { MongoMemoryServer } = require('mongodb-memory-server');
-const apiRoutes             = require('./routes/api');
 const fetchData             = require('./fetchData');
+const apiRoutes             = require('./routes/api');
+const { MongoMemoryServer } = require('mongodb-memory-server');
 
 const app = express();
 const PORT = process.env.PORT;
+const FETCH_TIME = 1000 * 60 * 60;
 
 let mongoServer;
 
@@ -26,10 +27,7 @@ let mongoServer;
   }
 })();
 
-setInterval(() => {
-  fetchData();
-}, 1000 * 60 * 60);
-
+setInterval(fetchData, FETCH_TIME);
 
 app.use('/api/v1/', apiRoutes);
 

@@ -20,11 +20,21 @@ SnapshotSchema.pre('save', next => {
 Snapshot = mongoose.model('snapshot', SnapshotSchema);
 
 Snapshot.findOneAfter = async date => {
-  return await Snapshot.findOne({ createdAt: { $gte: date } });
+  const snapshot = await Snapshot.findOne({ createdAt: { $gte: date } });
+
+  if (snapshot) {
+    return new SnapshotCollection([snapshot]);
+  }
+  return new SnapshotCollection;
 }
 
 Snapshot.latest = async () => {
-  return await Snapshot.findOne({}).sort({ createdAt: -1 });
+  const snapshot = await Snapshot.findOne({}).sort({ createdAt: -1 });
+
+  if (snapshot) {
+    return new SnapshotCollection([snapshot]);
+  }
+  return new SnapshotCollection;
 }
 
 Snapshot.between = async (from, to) => {
