@@ -11,7 +11,7 @@ const fetchData = async () => {
       data.stations = JSON.stringify(stations.features);
     });
   await fetch(
-    "https://api.openweathermap.org/data/2.5/weather?q=Philadelphia,PA,US&units=imperial&appid=280846fd1decf39edf467bfc652a7e92"
+    `https://api.openweathermap.org/data/2.5/weather?q=Philadelphia,PA,US&units=imperial&appid=${process.env.OPENWEATHERMAP_KEY}`
   )
     .then(response => response.json())
     .then(weather => {
