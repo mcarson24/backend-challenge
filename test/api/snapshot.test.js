@@ -16,7 +16,11 @@ describe('Snapshot', () => {
       request(app)
         .get('/api/v1/stations')
         .set('Accept', 'application/json')
-        .expect(404, done);
+        .expect(404)
+        .end((err, res) => {
+          expect(res.body.error.message).to.equal('No data currently exists.');
+          done();
+        });
     });
     it('should return the most recent snapshot data when no date is specified', done => {
       Snapshot.create({
@@ -42,7 +46,7 @@ describe('Snapshot', () => {
         "2020-01-01 00:00:00+00:00",
         "2020-01-20 02:00:00+00:00",
         "2020-01-20 11:05:00+00:00",
-        "2020-01-20 12:05:00+00:00"
+        "2020-01-20 13:05:00+00:00"
       ];
       // Create snapshots for multiple dates, so we can 
       // test that the api will return the correct one.

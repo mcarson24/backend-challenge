@@ -1,5 +1,5 @@
-const mongoose  = require('mongoose');
-const Time      = require('../Time');
+const mongoose            = require('mongoose');
+const SnapshotCollection  = require('../SnapshotCollection');
 
 const SnapshotSchema = new mongoose.Schema({
   stations: String,
@@ -28,9 +28,11 @@ Snapshot.latest = async () => {
 }
 
 Snapshot.between = async (from, to) => {
-  return await Snapshot.find({
+  const snapshots = await Snapshot.find({
     createdAt: { $lte: to, $gte: from }
   });
+
+  return new SnapshotCollection(snapshots);
 }
 
 module.exports = Snapshot;
