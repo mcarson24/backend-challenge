@@ -30,7 +30,7 @@ module.exports.getStationSnapshot = async (req, res, next) => {
     // Return snapshot from specific point in time.
     const date = new Time(`${req.query.at}+00:00`).string();
 
-    if (datesAreInvalid(date)) return next(InvalidDateError);
+    if (datesAreInvalid(date)) return next(new InvalidDateError);
 
     const snapshot = await Snapshot.findOneAfter(date);
 
