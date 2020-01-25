@@ -30,7 +30,6 @@ Snapshot.findOneAfter = async date => {
 
 Snapshot.latest = async () => {
   const snapshot = await Snapshot.findOne({}).sort({ createdAt: -1 });
-
   if (snapshot) {
     return new SnapshotCollection([snapshot]);
   }

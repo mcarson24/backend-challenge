@@ -7,20 +7,22 @@ module.exports = class SnapshotCollection {
 
   get json() {
     if (this.collection.length == 1) {
+      console.log('here');
       return {
         at: moment(this.collection[0].createdAt)
           .utc()
           .format("YYYY-MM-DD:THH:mm:ss"),
-        station: JSON.parse(this.collection[0].stations)[0],
+        stations: JSON.parse(this.collection[0].stations),
         weather: JSON.parse(this.collection[0].weather)
       };
     }
     return this.collection.map(snapshot => {
+      console.log('here');
       return {
         at: moment(snapshot.createdAt)
           .utc()
           .format("YYYY-MM-DD:THH:mm:ss"),
-        station: JSON.parse(snapshot.stations)[0],
+        station: JSON.parse(snapshot.stations),
         weather: JSON.parse(snapshot.weather)
       };
     });

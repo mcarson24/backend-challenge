@@ -12,6 +12,8 @@ module.exports.index = async (req, res, next) => {
 
     return res.json(snapshot.json);
   }
+  // If a specific time is not specified, 
+  // get the most recent snapshot.
   latest = await Snapshot.latest();
 
   if (latest.empty()) return next(new SnapshotNotFoundError);
