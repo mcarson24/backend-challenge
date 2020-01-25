@@ -6,8 +6,16 @@ module.exports = class SnapshotCollection {
   }
 
   get json() {
+    if (this.wantsSingleStation) {
+      return {
+        at: moment(this.collection[0].createdAt)
+          .utc()
+          .format("YYYY-MM-DD:THH:mm:ss"),
+        station: JSON.parse(this.collection[0].stations)[0],
+        weather: JSON.parse(this.collection[0].weather)
+      };
+    }
     if (this.collection.length == 1) {
-      console.log('here');
       return {
         at: moment(this.collection[0].createdAt)
           .utc()
@@ -17,7 +25,6 @@ module.exports = class SnapshotCollection {
       };
     }
     return this.collection.map(snapshot => {
-      console.log('here');
       return {
         at: moment(snapshot.createdAt)
           .utc()
@@ -33,6 +40,8 @@ module.exports = class SnapshotCollection {
   }
 
   onlyGetStaionDataFor(kioskId) {
+    this.wantsSingleStation = true;
+    
     this.collection.map(snapshot => {
       snapshot.stations = JSON.stringify(
         JSON.parse(snapshot.stations).filter(station => {

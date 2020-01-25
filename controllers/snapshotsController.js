@@ -39,8 +39,8 @@ module.exports.getStationSnapshot = async (req, res, next) => {
     if (!snapshot) return next(SnapshotNotFoundError);
 
     snapshot.onlyGetStaionDataFor(req.params.id);
-
-    return res.json(snapshot.json);
+    return res.json(snapshot.onlyGetStaionDataFor(req.params.id).json);
+    // return res.json(snapshot.json);
   } 
 
   // Return snapshots in a range of times.
