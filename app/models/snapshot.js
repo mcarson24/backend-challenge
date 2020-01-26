@@ -37,11 +37,10 @@ Snapshot.latest = async () => {
 }
 
 Snapshot.between = async (from, to) => {
-  const snapshots = await Snapshot.find({
+  return await Snapshot.find({
     createdAt: { $lte: to, $gte: from }
   });
-
-  return new SnapshotCollection(snapshots);
+  return snapshots;
 }
 
 module.exports = Snapshot;

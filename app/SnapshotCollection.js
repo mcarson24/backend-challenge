@@ -6,6 +6,17 @@ module.exports = class SnapshotCollection {
   }
 
   get json() {
+    if (this.wantsSingleStation && this.wantsRangeOfSnapshots) {
+      return this.collection.map(snapshot => {
+        return {
+          at: moment(snapshot.createdAt)
+            .utc()
+            .format("YYYY-MM-DD:THH:mm:ss"),
+          station: JSON.parse(snapshot.stations)[0],
+          weather: JSON.parse(snapshot.weather)
+        };
+      });
+    }
     if (this.wantsSingleStation) {
       return {
         at: moment(this.collection[0].createdAt)
@@ -18,8 +29,8 @@ module.exports = class SnapshotCollection {
     if (this.collection.length == 1) {
       return {
         at: moment(this.collection[0].createdAt)
-          .utc()
-          .format("YYYY-MM-DD:THH:mm:ss"),
+        .utc()
+        .format("YYYY-MM-DD:THH:mm:ss"),
         stations: JSON.parse(this.collection[0].stations),
         weather: JSON.parse(this.collection[0].weather)
       };
@@ -35,13 +46,21 @@ module.exports = class SnapshotCollection {
     });
   }
 
+  async between(from, to) {
+    this.wantsRangeOfSnapshots = true;
+
+    this.collection = await Snapshot.between(from, to);
+
+    return this;
+  }
+
   empty() {
     return this.collection.length < 1;
   }
 
-  onlyGetStaionDataFor(kioskId) {
+  onlyGetStationDataFor(kioskId) {
     this.wantsSingleStation = true;
-    
+
     this.collection.map(snapshot => {
       snapshot.stations = JSON.stringify(
         JSON.parse(snapshot.stations).filter(station => {

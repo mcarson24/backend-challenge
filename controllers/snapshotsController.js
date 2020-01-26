@@ -1,6 +1,7 @@
 const Time                  = require('../app/Time');
-const Snapshot              = require('../app/models/snapshot');
+// const Snapshot              = require('../app/models/snapshot');
 const InvalidDateError      = require("./errors/InvalidDateError");
+const SnapshotCollection    = require('../app/SnapshotCollection');
 const SnapshotNotFoundError = require("./errors/SnapshotNotFoundError");
 
 module.exports.index = async (req, res, next) => {
@@ -38,8 +39,8 @@ module.exports.getStationSnapshot = async (req, res, next) => {
 
     if (!snapshot) return next(SnapshotNotFoundError);
 
-    snapshot.onlyGetStaionDataFor(req.params.id);
-    return res.json(snapshot.onlyGetStaionDataFor(req.params.id).json);
+    snapshot.onlyGetStationDataFor(req.params.id);
+    return res.json(snapshot.onlyGetStationDataFor(req.params.id).json);
     // return res.json(snapshot.json);
   } 
 
@@ -49,12 +50,14 @@ module.exports.getStationSnapshot = async (req, res, next) => {
 
   if (datesAreInvalid(from, to)) return next(new InvalidDateError);
 
-  const snapshotsCollection = await Snapshot.between(from, to);
-  snapshotsCollection.onlyGetStaionDataFor(req.params.id)
+  // const snapshotsCollection = await Snapshot.between(from, to);
+  snapshots = new SnapshotCollection;
+  await snapshots.between(from, to);
+  await snapshots.onlyGetStationDataFor(req.params.id);
+  // snapshotsCollection.onlyGetStaionDataFor(req.params.id);
+  if (req.query.frequency === 'daily') snapshots.onlyGetDailySnapshots();
 
-  if (req.query.frequency === 'daily') snapshotsCollection.onlyGetDailySnapshots();
-
-  res.json(snapshotsCollection.json);
+  res.json(snapshots.json);
 }
 
 const queryParametersExistOnRequest = (req, ...params) => {
