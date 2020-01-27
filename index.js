@@ -1,5 +1,6 @@
 require('dotenv').config();
 
+const path                  = require('path');
 const express               = require('express');
 const mongoose              = require('mongoose');
 const fetchData             = require('./fetchData');
@@ -29,6 +30,13 @@ let mongoServer;
 
 setInterval(fetchData, FETCH_TIME);
 
+app.set('view engine', 'pug');
+app.use(express.static(path.join(__dirname, 'public')))
+
+app.get('/', (req, res) => {
+  res.render('index');
+});
+
 app.use('/api/v1/', apiRoutes);
 
 app.use((req, res, next) => {
@@ -43,6 +51,7 @@ app.use((req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
+  console.error(err);
   res.status(err.status)
      .json({
        error: {
