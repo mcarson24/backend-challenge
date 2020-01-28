@@ -185,7 +185,6 @@
             this.snapshots = res;
             this.totalSnapshots = res.length;
             this.currentSnapshot = res[0].station.properties.name;
-            // this.message = `There have been ${totalSnapshots} snapshots taken for '${res[0].station.properties.name}' during that time period.`;
             this.fullDataLink = `/api/v1/stations/${this.rangeStation}?from=${this.fromQueryString}&to=${this.toQueryString}${this.frequency ? '&frequency=daily' : ''}`;
             let temp = 0;
             res.map(snapshot => {
@@ -211,7 +210,6 @@
               const date = moment(this.reformatDate(res.at));
               this.date.day = date.format('dddd, MMMM Do YYYY');
               this.date.time = date.format('H:mm:ss a');
-              // this.message = `The closest snapshot to that time was taken on ${date.format('dddd, MMMM Do YYYY')} at ${date.format('H:mm:ss a')}.`;
               this.weather = res.weather;
               this.electricBikesAvailable = parseInt(res.station.properties.electricBikesAvailable);
               this.classicBikesAvailable = parseInt(res.station.properties.classicBikesAvailable);
