@@ -22,16 +22,26 @@ module.exports = {
         use: [
           'style-loader',
           'css-loader',
-          // {
-          //   loader: 'postcss-loader',
-          //   options: {
-          //     ident: 'postcss',
-          //     plugins: [
-          //       require('tailwindcss'),
-          //       require('autoprefixer'),
-          //     ],
-          //   },
-          // }
+          {
+            loader: 'postcss-loader',
+            options: {
+              ident: 'postcss',
+              plugins: [
+                require('tailwindcss'),
+                require('autoprefixer'),
+                require('@fullhuman/postcss-purgecss')({
+									content: [
+										'./src/**/**/*.vue',
+										'./src/*.js',
+										'./public/index.html',
+                    './src/css/*.css',
+                    './node_modules/flatpickr/dist/flatpickr.css'
+									],
+									defaultExtractor: content => content.match(/[A-za-z0-9-_:/]+/g) || []
+								})
+              ],
+            },
+          }
         ]
       },
       { 
