@@ -2,7 +2,10 @@ const path = require('path');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
 module.exports = {
-  entry: './src/js/app.js',
+  entry: [
+    './src/js/app.js',
+    './src/css/styles.css'
+  ],
   output: {
     filename: 'app.js',
     path: path.resolve(__dirname, 'public/js')
@@ -18,7 +21,17 @@ module.exports = {
         test: /.css$/,
         use: [
           'style-loader',
-          'css-loader'
+          'css-loader',
+          {
+            loader: 'postcss-loader',
+            options: {
+              ident: 'postcss',
+              plugins: [
+                require('tailwindcss'),
+                require('autoprefixer'),
+              ],
+            },
+          }
         ]
       },
       { 
@@ -33,6 +46,6 @@ module.exports = {
     ]
   },
   plugins: [
-    new VueLoaderPlugin()
+    new VueLoaderPlugin(),
   ]
 }
