@@ -1,8 +1,8 @@
 import Vue from 'vue';
 
-import TestComponent from './components/TestComponent.vue';
+import APIComponent from './components/APIComponent.vue';
 
-Vue.component('test', TestComponent);
+Vue.component('test', APIComponent);
 
 const app = new Vue({
   el: '#app'
