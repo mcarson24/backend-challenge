@@ -3,6 +3,7 @@
     <div>
       <label for="at">At:</label>
       <flat-pickr v-model="at" :config="dateConfig"></flat-pickr>
+      <station-select v-model="singleSnapshotStation"></station-select>
       <button @click="getDataAt" :disabled="!at">Get</button>
     </div>
     <div>
@@ -14,28 +15,20 @@
         <label for="to">To:</label>
         <flat-pickr v-model="to" :config="dateConfig"></flat-pickr>
       </div>
-      <label for="station">Station ID:</label>
-      <select name="station" id="station" v-model="desiredKiosk" required>
-        <option value="" disabled>Select a station</option>
-        <option v-for="station in stationIds" 
-                :value="station.id" 
-                v-text="station.name"
-                v-bind:key="station.id"
-                >
-        </option>
-      </select>
+      <label for="station">Station:</label>
+      <station-select :required="true" v-model="rangeStation"></station-select>
+      <button @click="getRange" :disabled="!from || !to || !rangeStation">Get</button>
     </div>
-    <button @click="getRange" :disabled="!from || !to || !desiredKiosk">Get</button>
     <div v-if="show">
       <h2 v-text="message"></h2>
-      <div class="flex" v-if="weather !== '' && info == 'data'">
+      <div class="flex" v-if="weather !== '' && type == 'data'">
 				<img :src="weatherIcon">
 				<div class="flex flex-col justify-center">
 					<div class="text-3xl flex">{{ weather.main.temp }}&deg;</div>
 		      <span v-text="weather.weather.description"></span>
 				</div>
 			</div>
-      <div v-if="info == 'data'">
+      <div v-if="type == 'data'">
         <div>
           <h3>Bikes Available</h3>
           <ul>
@@ -59,7 +52,7 @@
           </ul>
         </div>
       </div>
-      <div v-if="info == 'range'">
+      <div v-if="type == 'range'">
         <p v-text="weatherMessage"></p>
         <p>On average, there were about {{(docksAvailable / snapshots).toFixed(0)}} docks available and {{(bikesAvailable / snapshots).toFixed(0)}} bikes available.</p>
         <a :href="fullDataLink">View full JSON data</a>
@@ -72,22 +65,23 @@
   import flatPickr from 'vue-flatpickr-component';
   import 'flatpickr/dist/flatpickr.css';
   import moment from 'moment';
+  import StationSelect from './StationSelect.vue';
 
   export default {
-    components: { flatPickr },
+    components: { flatPickr, StationSelect },
     data() {
       return {
         from: '',
         to: '',
         at: '',
         show: false,
-        info: '',
-        stationName: '',
+        type: '',
         stationIds: [],
         message: '',
         weatherMessage: '',
         snapshots: 0,
-        desiredKiosk: '',
+        singleSnapshotStation: '',
+        rangeStation: '',
         weather: '',
         temp: 0,
         docksAvailable: 0,
@@ -103,22 +97,18 @@
         }
       }
     },
-    mounted() {
-      this.getStationsInfo();
-    },
     methods: {
       getRange() {
-        if (!this.from || !this.to || !this.desiredKiosk) return;
-        this.temp = this.bikesAvailable = this.docksAvailable = 0;
+        if (!this.from || !this.to || !this.rangeStation) return;
+        this.reset();
         this.show = true;
-        this.info = 'range';
-        fetch(`/api/v1/stations/${this.desiredKiosk}?from=${this.fromQueryString}&to=${this.toQueryString}`)
+        this.type = 'range';
+        fetch(`/api/v1/stations/${this.rangeStation}?from=${this.fromQueryString}&to=${this.toQueryString}`)
           .then(res => res.json())
           .then(res => {
-            this.stationName = res[0].station.properties.name;
             this.snapshots = res.length;
-            this.message = `There have been ${this.snapshots} snapshots taken for '${this.stationName}' during that time period.`;
-            this.fullDataLink = `/api/v1/stations/${this.desiredKiosk}?from=${this.fromQueryString}&to=${this.toQueryString}${this.frequency ? '&frequency=daily' : ''}`;
+            this.message = `There have been ${this.snapshots} snapshots taken for '${res[0].station.properties.name}' during that time period.`;
+            this.fullDataLink = `/api/v1/stations/${this.rangeStation}?from=${this.fromQueryString}&to=${this.toQueryString}${this.frequency ? '&frequency=daily' : ''}`;
             res.map(snapshot => {
               this.temp += snapshot.weather.main.temp;
               this.bikesAvailable += snapshot.station.properties.bikesAvailable;
@@ -130,22 +120,34 @@
       getDataAt() {
         if (!this.at) return;
         this.show = true;
-        this.info = 'data';
-        this.classicBikesAvailable = this.electricBikesAvailable = this.fullStations = this.emptyStations = 0;
-        fetch(`/api/v1/stations?at=${this.atQueryString}`)
-          .then(res => res.json())
-          .then(({at, stations, weather}) => {
-            const date = moment(this.reformatDate(at));
-            this.message = `The closest snapshot to that time was taken on ${date.format('dddd, MMMM Do YYYY')} at ${date.format('H:mm:ss a')}.`;
-            this.weather = weather;
-            
-            stations.map(({properties}) => {
-              if (properties.docksAvailable == 0) this.fullStations++;
-              if (properties.bikesAvailable == 0) this.emptyStations++;
-              this.electricBikesAvailable += parseInt(properties.electricBikesAvailable);
-              this.classicBikesAvailable += parseInt(properties.classicBikesAvailable);
+        this.type = 'data';
+        this.reset();
+        if (this.singleSnapshotStation) {
+          fetch(`/api/v1/stations/${this.singleSnapshotStation}?at=${this.atQueryString}`)
+            .then(res => res.json())
+            .then(({at, station, weather}) => {
+              const date = moment(this.reformatDate(at));
+              this.message = `The closest snapshot to that time was taken on ${date.format('dddd, MMMM Do YYYY')} at ${date.format('H:mm:ss a')}.`;
+              this.weather = weather;
+              this.electricBikesAvailable = parseInt(station.properties.electricBikesAvailable);
+              this.classicBikesAvailable = parseInt(station.properties.classicBikesAvailable);
+            })
+        } else {
+          fetch(`/api/v1/stations?at=${this.atQueryString}`)
+            .then(res => res.json())
+            .then(({at, stations, weather}) => {
+              const date = moment(this.reformatDate(at));
+              this.message = `The closest snapshot to that time was taken on ${date.format('dddd, MMMM Do YYYY')} at ${date.format('H:mm:ss a')}.`;
+              this.weather = weather;
+              
+              stations.map(({properties}) => {
+                if (properties.docksAvailable == 0) this.fullStations++;
+                if (properties.bikesAvailable == 0) this.emptyStations++;
+                this.electricBikesAvailable += parseInt(properties.electricBikesAvailable);
+                this.classicBikesAvailable += parseInt(properties.classicBikesAvailable);
+              });
             });
-          });
+        }
       },
       reformatDate(date) {
         const day = date.substr(0, 10);
@@ -153,17 +155,9 @@
 
         return `${day} ${time}`;
       },
-      getStationsInfo() {
-        fetch('/api/v1/stations')
-        .then(res => res.json())
-        .then(({stations}) => {
-          stations.map(({properties}) => {
-            this.stationIds.push({
-              id: properties.kioskId,
-              name: properties.name
-            });
-          });
-        });
+      reset() {
+        this.temp = this.bikesAvailable = this.docksAvailable = 0;
+        this.classicBikesAvailable = this.electricBikesAvailable = this.fullStations = this.emptyStations = 0;
       }
     },
     computed: {
