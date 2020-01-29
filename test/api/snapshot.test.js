@@ -98,7 +98,7 @@ describe('Snapshot', () => {
         .expect('Content-Type', /json/)
         .expect(200)
         .end((err, res) => {
-          // expect(res.body.station.properties).to.deep.equal({ "kioskId": 3098 });
+          expect(res.body.station.properties).to.deep.equal({ "kioskId": 3098 });
           done();
         });
     });

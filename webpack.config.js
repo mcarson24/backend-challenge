@@ -3,12 +3,14 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
 module.exports = {
   entry: [
+    'babel-polyfill',
     './src/js/app.js',
     './src/css/styles.css'
   ],
   output: {
     filename: 'app.js',
-    path: path.resolve(__dirname, 'public/js')
+    chunkFilename: 'js/[name].bundle.js',
+    path: path.resolve(__dirname, 'public/js'),
   },
   resolve: {
     alias: {

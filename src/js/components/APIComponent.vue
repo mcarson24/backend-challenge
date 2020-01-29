@@ -134,7 +134,7 @@
   import '../../css/styles.css';
   import flatPickr from 'vue-flatpickr-component';
   import 'flatpickr/dist/flatpickr.css';
-  import moment from 'moment';
+  // import moment from 'moment';
   import StationSelect from './StationSelect.vue';
 
   export default {
@@ -207,9 +207,9 @@
             .then(res => res.json())
             .then(res => {
               this.snapshots = res;
-              const date = moment(this.reformatDate(res.at));
-              this.date.day = date.format('dddd, MMMM Do YYYY');
-              this.date.time = date.format('H:mm:ss a');
+              const date = this.reformatDate(res.at);
+              this.date.day = this.getTime(date, 'dddd, MMMM Do YYYY');
+              this.date.time = this.getTime(date, 'H:mm:ss a');
               this.weather = res.weather;
               this.electricBikesAvailable = parseInt(res.station.properties.electricBikesAvailable);
               this.classicBikesAvailable = parseInt(res.station.properties.classicBikesAvailable);
@@ -220,11 +220,10 @@
           fetch(`/api/v1/stations?at=${this.atQueryString}`)
             .then(res => res.json())
             .then(({at, stations, weather}) => {
-              const date = moment(this.reformatDate(at));
-              this.date.day = date.format('dddd, MMMM Do YYYY');
-              this.date.time = date.format('H:mm:ss a');
+              const date = this.reformatDate(at);
+              this.date.day = this.getTime(date, 'dddd, MMMM Do YYYY');
+              this.date.time = this.getTime(date, 'H:mm:ss a');
 
-              this.message = `The closest snapshot to that time was taken on ${date.format('dddd, MMMM Do YYYY')} at ${date.format('H:mm:ss a')}.`;
               this.weather = weather;
               
               stations.map(({properties}) => {
@@ -240,22 +239,33 @@
         const day = date.substr(0, 10);
         const time = date.substr(date.indexOf('T') + 1);
 
-        return `${day} ${time}`;
+        return `${day}T${time}`;
       },
       reset() {
         this.bikesAvailable = this.docksAvailable = 0;
         this.classicBikesAvailable = this.electricBikesAvailable = this.fullStations = this.emptyStations = 0;
+      },
+      async getTime(date, format = '') {
+        await import(/* webpackChunkName: "moment" */ 'moment')
+          .then(({ default: moment }) => {
+            const momentDate = moment(date);
+            if (format.length) {
+              return momentDate.format(format)
+            }
+            return momentDate;
+          })
+          .catch(err => console.error);
       }
     },
     computed: {
       toQueryString() {
-        return moment(this.to).format('YYYY-MM-DDTHH:mm:ss');
+        return this.getTime(this.to, 'YYYY-MM-DDTHH:mm:ss');
       },
       fromQueryString() {
-        return moment(this.from).format('YYYY-MM-DDTHH:mm:ss');
+        return this.getTime(this.from, 'YYYY-MM-DDTHH:mm:ss');
       },
       atQueryString() {
-        return moment(this.at).format('YYYY-MM-DDTHH:mm:ss');
+        return this.getTime(this.at, 'YYYY-MM-DDTHH:mm:ss');
       },
       weatherIcon() {
 				return `https://openweathermap.org/img/wn/${this.weather.weather[0].icon}@2x.png`
