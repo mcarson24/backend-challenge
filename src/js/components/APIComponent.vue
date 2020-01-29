@@ -134,7 +134,7 @@
   import '../../css/styles.css';
   import flatPickr from 'vue-flatpickr-component';
   import 'flatpickr/dist/flatpickr.css';
-  // import moment from 'moment';
+  import moment from 'moment';
   import StationSelect from './StationSelect.vue';
 
   export default {
@@ -245,16 +245,12 @@
         this.bikesAvailable = this.docksAvailable = 0;
         this.classicBikesAvailable = this.electricBikesAvailable = this.fullStations = this.emptyStations = 0;
       },
-      async getTime(date, format = '') {
-        await import(/* webpackChunkName: "moment" */ 'moment')
-          .then(({ default: moment }) => {
-            const momentDate = moment(date);
-            if (format.length) {
-              return momentDate.format(format)
-            }
-            return momentDate;
-          })
-          .catch(err => console.error);
+      getTime(date, format = '') {
+        const momentDate = moment(date);
+        if (format.length) {
+          return momentDate.format(format)
+        }
+        return momentDate;
       }
     },
     computed: {

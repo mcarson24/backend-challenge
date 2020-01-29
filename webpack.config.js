@@ -1,9 +1,9 @@
 const path = require('path');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const MomentLocalesPlugin = require('moment-locales-webpack-plugin');
 
 module.exports = {
   entry: [
-    'babel-polyfill',
     './src/js/app.js',
     './src/css/styles.css'
   ],
@@ -11,11 +11,6 @@ module.exports = {
     filename: 'app.js',
     chunkFilename: 'js/[name].bundle.js',
     path: path.resolve(__dirname, 'public/js'),
-  },
-  resolve: {
-    alias: {
-      'vue$': 'vue/dist/vue.esm.js' // 'vue/dist/vue.common.js' for webpack 1
-    }
   },
   module: {
     rules: [
@@ -53,11 +48,12 @@ module.exports = {
       },
       {
         test: /.vue$/,
-        loader: 'vue-loader'
+        use: 'vue-loader'
       }
     ]
   },
   plugins: [
+    new MomentLocalesPlugin(),
     new VueLoaderPlugin(),
   ]
 }
